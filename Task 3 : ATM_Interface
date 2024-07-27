@@ -1,0 +1,188 @@
+ import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+
+public class Atm_Interface {
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        BankAccount account = new BankAccount(0.0);
+        ATM atm = new ATM(account);
+        new Atm_Interface(atm);
+    }
+
+    private ATM atm;
+    private JFrame frame;
+    private JTextField amountField;
+    private JLabel resultLabel;
+    private JTextArea transactionLog;
+
+    public Atm_Interface(ATM atm) {
+        this.atm = atm;
+        createUI();
+    }
+
+    private void createUI() {
+        frame = new JFrame("Hello this is ATM Interface");
+        frame.setSize(500, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        addAmountLabel(gbc);
+        addAmountField(gbc);
+        addWithdrawButton(gbc);
+        addDepositButton(gbc);
+        addCheckBalanceButton(gbc);
+        addResultLabel(gbc);
+        addTransactionLog(gbc);
+
+        frame.setVisible(true);
+    }
+
+    private void addAmountLabel(GridBagConstraints gbc) {
+        JLabel amountLabel = new JLabel("Amount:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        frame.add(amountLabel, gbc);
+    }
+
+    private void addAmountField(GridBagConstraints gbc) {
+        amountField = new JTextField(10);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        frame.add(amountField, gbc);
+    }
+
+    private void addWithdrawButton(GridBagConstraints gbc) {
+        JButton withdrawButton = new JButton("Withdraw");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        frame.add(withdrawButton, gbc);
+        withdrawButton.addActionListener(this::performWithdraw);
+    }
+
+    private void addDepositButton(GridBagConstraints gbc) {
+        JButton depositButton = new JButton("Deposit");
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        frame.add(depositButton, gbc);
+        depositButton.addActionListener(this::performDeposit);
+    }
+
+    private void addCheckBalanceButton(GridBagConstraints gbc) {
+        JButton checkBalanceButton = new JButton("Check Balance");
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        frame.add(checkBalanceButton, gbc);
+        checkBalanceButton.addActionListener(this::performCheckBalance);
+    }
+
+    private void addResultLabel(GridBagConstraints gbc) {
+        resultLabel = new JLabel("");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        frame.add(resultLabel, gbc);
+    }
+
+    private void addTransactionLog(GridBagConstraints gbc) {
+        transactionLog = new JTextArea(10, 30);
+        transactionLog.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(transactionLog);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        frame.add(scrollPane, gbc);
+    }
+
+    private void performWithdraw(ActionEvent e) {
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) {
+                resultLabel.setText("Please enter a positive amount.");
+                return;
+            }
+            if (atm.withdraw(amount)) {
+                resultLabel.setText("Withdrawn: " + amount);
+                transactionLog.append("Withdrawn: " + amount + "\n");
+            } else {
+                resultLabel.setText("Insufficient funds!");
+            }
+        } catch (NumberFormatException ex) {
+            resultLabel.setText("Please enter a valid amount.");
+        }
+    }
+
+    private void performDeposit(ActionEvent e) {
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) {
+                resultLabel.setText("Please enter a positive amount.");
+                return;
+            }
+            atm.deposit(amount);
+            resultLabel.setText("Deposited: " + amount);
+            transactionLog.append("Deposited: " + amount + "\n");
+        } catch (NumberFormatException ex) {
+            resultLabel.setText("Please enter a valid amount.");
+        }
+    }
+
+    private void performCheckBalance(ActionEvent e) {
+        resultLabel.setText("Balance: " + atm.checkBalance());
+        transactionLog.append("Checked Balance: " + atm.checkBalance() + "\n");
+    }
+}
+
+class BankAccount {
+    private double balance;
+
+    public BankAccount(double initialBalance) {
+        this.balance = initialBalance;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            return true;
+        }
+        return false;
+    }
+}
+
+class ATM {
+    private BankAccount account;
+
+    public ATM(BankAccount account) {
+        this.account = account;
+    }
+
+    public double checkBalance() {
+        return account.getBalance();
+    }
+
+    public boolean withdraw(double amount) {
+        return account.withdraw(amount);
+    }
+
+    public void deposit(double amount) {
+        account.deposit(amount);
+    }
+}
