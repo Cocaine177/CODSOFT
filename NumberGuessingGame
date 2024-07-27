@@ -1,0 +1,64 @@
+import java.util.Random;
+import java.util.Scanner;
+
+public class NumberGuessingGame {
+    private static final int max_attempts = 12;
+    private static final int range_start = 0;
+    private static final int range_end = 100;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+        int roundsWon = 0;
+        int consecutiveRoundsWon = 0;
+        boolean playAgain;
+
+        do {
+            int attempts = 0;
+            int numberToGuess = random.nextInt(range_end - range_start + 1) + range_start;
+            boolean guessedCorrectly = false;
+
+            System.out.println("I have generated a number between " + range_start + " and " + range_end + ".");
+            System.out.println("You have " + max_attempts + " attempts to guess it.");
+
+            while (attempts < max_attempts && !guessedCorrectly) {
+                System.out.print("Enter your guess: ");
+                int userGuess = scanner.nextInt();
+                attempts++;
+
+                if (userGuess == numberToGuess) {
+                    System.out.println("Congratulations! You've guessed the number correctly.");
+                    guessedCorrectly = true;
+                    roundsWon++;
+                } else if (userGuess < numberToGuess) {
+                    System.out.println("Your guess is too low.");
+                } else {
+                    System.out.println("Your guess is too high.");
+                }
+
+                if (!guessedCorrectly) {
+                    System.out.println("Attempts left: " + (max_attempts - attempts));
+                }
+            }
+
+            if (!guessedCorrectly) {
+                System.out.println("You've run out of attempts. The correct number was: " + numberToGuess);
+            }
+            if (!guessedCorrectly) {
+                System.out.println("You've run out of attempts. The correct number was: " + numberToGuess);
+                consecutiveRoundsWon = 0;  // Reset consecutive wins on a loss
+            }
+            if (consecutiveRoundsWon == 5) {
+                System.out.println("Amazing! You've won 5 rounds in a row!");
+                consecutiveRoundsWon = 0;  // Reset consecutive wins after congratulating
+            }
+            System.out.print("Do you want to play again? (yes/no): ");
+            String response = scanner.next();
+            playAgain = response.equalsIgnoreCase("yes");
+
+        } while (playAgain);
+
+        System.out.println("You won " + roundsWon + " round(s). Thanks for playing!");
+        scanner.close();
+    }
+}
